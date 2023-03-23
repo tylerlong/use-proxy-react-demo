@@ -1,30 +1,12 @@
-import { releaseChildren, useProxy, autoRun } from '@tylerlong/use-proxy';
-import React, { StrictMode, useEffect, useState } from 'react';
+import { useProxy } from '@tylerlong/use-proxy';
+import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Button, Space, Typography } from 'antd';
 import { auto } from '@tylerlong/use-proxy/lib/react';
 
-// bug: below implementation doesn't re-render when timestamp changes
-// const auto = (render, props): JSX.Element | null => {
-//   const [r, refresh] = useState(null);
-//   useEffect(() => {
-//     console.log('effect');
-//     const proxy = useProxy(props);
-//     const { start, stop } = autoRun(proxy, () => {
-//       refresh(render());
-//     });
-//     start();
-//     return () => {
-//       console.log('release');
-//       stop();
-//       releaseChildren(proxy);
-//     };
-//   }, []);
-//   return r;
-// };
-
 const { Title, Text } = Typography;
 
+// global state
 class Store {
   public count = 0;
 }
@@ -33,6 +15,7 @@ const store = useProxy(new Store());
 
 const App = (props: { store: Store }) => {
   const { store } = props;
+  // local state
   const [time, setTime] = useState(Date.now());
   useEffect(() => {
     const timer = setInterval(() => {
@@ -74,8 +57,4 @@ const App = (props: { store: Store }) => {
 const container = document.createElement('div');
 document.body.appendChild(container);
 const root = createRoot(container);
-root.render(
-  // <StrictMode>
-  <App store={store} />,
-  // </StrictMode>,
-);
+root.render(<App store={store} />);
