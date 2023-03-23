@@ -5,21 +5,23 @@ import { Button, Space, Typography } from 'antd';
 import { ProxyEvent } from '@tylerlong/use-proxy/lib/models';
 
 const auto = (render, props): JSX.Element => {
-  const [, refresh] = useState(false);
+  const [r, refresh] = useState(() => render());
   useEffect(() => {
+    console.log('effect');
     const proxy = useProxy(props);
     const listener = (event: ProxyEvent) => {
       if (event.name === 'set') {
-        refresh((r) => !r);
+        refresh(() => render());
       }
     };
     proxy.__emitter__.on('event', listener);
     return () => {
+      console.log('release');
       proxy.__emitter__.off('event', listener);
       releaseChildren(proxy);
     };
   }, []);
-  return render();
+  return r;
 };
 
 const { Title, Text } = Typography;
