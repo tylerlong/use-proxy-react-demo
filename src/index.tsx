@@ -1,5 +1,5 @@
 import { releaseChildren, useProxy, autoRun } from '@tylerlong/use-proxy';
-import React, { useEffect, useState } from 'react';
+import React, { StrictMode, useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Button, Space, Typography } from 'antd';
 
@@ -62,4 +62,8 @@ const App = (props: { store: Store }) => {
 const container = document.createElement('div');
 document.body.appendChild(container);
 const root = createRoot(container);
-root.render(<App store={store} />);
+root.render(
+  <StrictMode>
+    <App store={store} />
+  </StrictMode>,
+);
