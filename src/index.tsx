@@ -1,23 +1,20 @@
-import { releaseChildren, useProxy } from '@tylerlong/use-proxy';
+import { releaseChildren, useProxy, autoRun } from '@tylerlong/use-proxy';
 import React, { useEffect, useState } from 'react';
 import { createRoot } from 'react-dom/client';
 import { Button, Space, Typography } from 'antd';
-import { ProxyEvent } from '@tylerlong/use-proxy/lib/models';
 
-const auto = (render, props): JSX.Element => {
-  const [r, refresh] = useState(() => render());
+const auto = (render, props): JSX.Element | null => {
+  const [r, refresh] = useState(null);
   useEffect(() => {
     console.log('effect');
     const proxy = useProxy(props);
-    const listener = (event: ProxyEvent) => {
-      if (event.name === 'set') {
-        refresh(() => render());
-      }
-    };
-    proxy.__emitter__.on('event', listener);
+    const { start, stop } = autoRun(proxy, () => {
+      refresh(render());
+    });
+    start();
     return () => {
       console.log('release');
-      proxy.__emitter__.off('event', listener);
+      stop();
       releaseChildren(proxy);
     };
   }, []);
